@@ -36,7 +36,7 @@ pre-push:
     full-check:
       tags: comprehensive
       run: npm run precommit
-      fail_text: "❌ 完整检查失败！请修复所有问题后重新推送。"
+      fail_text: "❌ 检查失败！请修复所有问题后重新提交。"
 
 # 在 commit-msg 阶段验证提交信息
 commit-msg:
@@ -45,30 +45,7 @@ commit-msg:
     commitlint:
       tags: commit message
       run: npx commitlint --edit {1}
-      fail_text: |
-        ❌ 提交信息格式不符合规范！
-
-        请使用以下格式：
-        <type>(<scope>): <subject>
-
-        类型 (type):
-          feat:     新功能
-          fix:      修复bug
-          docs:     文档更新
-          style:    代码格式
-          refactor: 重构
-          perf:     性能优化
-          test:     测试相关
-          chore:    构建/工具变动
-          revert:   回滚
-          build:    构建系统
-          ci:       CI配置
-
-        示例:
-          feat: add user authentication
-          fix(auth): resolve login issue
-          docs: update README
-          style: format code with prettier
+      fail_text: "❌ 提交信息格式不符合规范。"
 
 # 跳过某些钩子的配置（用于紧急情况）
 skip_output:
