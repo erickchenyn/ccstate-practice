@@ -38,11 +38,35 @@ pre-commit:
 # 在 pre-push 阶段运行的钩子（可选，更严格的检查）
 pre-push:
     commands:
-        # 完整的项目检查
-        full-check:
-            tags: comprehensive
-            run: npm run full-check
-            fail_text: '❌ 检查失败！请修复所有问题后重新提交。'
+        # 1. 验证配置一致性（最重要，优先级最高）
+        validate-config:
+            tags: config validation
+            run: node scripts/validate-config.js
+            fail_text: '❌ EditorConfig 和 Prettier 配置不一致！请修复后重新提交。'
+
+        # 2. 检查代码格式
+        format-check:
+            tags: formatting
+            run: npm run format:check
+            fail_text: "❌ 代码格式不符合规范！运行 'npm run format' 修复后重新提交。"
+
+        # 3. Oxlint 检查（快速 lint）
+        oxlint:
+            tags: linting
+            run: npm run oxlint
+            fail_text: "❌ Oxlint 检查失败！运行 'npm run oxlint:fix' 修复后重新提交。"
+
+        # 4. ESLint 检查（详细 lint）
+        lint:
+            tags: linting
+            run: npm run lint
+            fail_text: "❌ ESLint 检查失败！运行 'npm run lint:fix' 修复后重新提交。"
+
+        # 5. TypeScript 类型检查
+        type-check:
+            tags: types
+            run: npm run type-check
+            fail_text: '❌ TypeScript 类型检查失败！请修复类型错误后重新提交。'
 
 # 在 commit-msg 阶段验证提交信息
 commit-msg:

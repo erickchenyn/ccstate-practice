@@ -24,7 +24,6 @@
         "hooks:install": "lefthook install",
         "hooks:uninstall": "lefthook uninstall",
         "commitlint": "commitlint --edit",
-        "full-check": "npm run validate-config && npm run format:check && npm run lint && npm run oxlint && npm run type-check",
         "format": "prettier --write \"src/**/*.{ts,tsx,js,jsx,json,md}\"",
         "format:check": "prettier --check \"src/**/*.{ts,tsx,js,jsx,json,md}\"",
         "lint": "eslint src --ext .ts,.tsx,.js,.jsx",
