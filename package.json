@@ -7,6 +7,8 @@
     "signal-transaction": "^1.1.0"
   },
   "devDependencies": {
+    "@commitlint/cli": "^18.0.0",
+    "@commitlint/config-conventional": "^18.0.0",
     "@typescript-eslint/eslint-plugin": "^6.0.0",
     "@typescript-eslint/parser": "^6.0.0",
     "eslint": "^8.0.0",
@@ -23,6 +25,7 @@
     "lint:fix": "eslint src --ext .ts,.tsx,.js,.jsx --fix",
     "type-check": "tsc --noEmit",
     "validate-config": "node scripts/validate-config.js",
+    "commitlint": "commitlint --edit",
     "precommit": "npm run validate-config && npm run format:check && npm run lint",
     "prepare": "lefthook install",
     "hooks:install": "lefthook install",
