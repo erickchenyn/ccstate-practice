@@ -1,5 +1,2 @@
 node_modules
-
-# 确保配置文件被包含
-!.cursorrules
-!CONFIG.md
+.DS_Store

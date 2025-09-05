@@ -1,4 +1,5 @@
 import { throwIfNotAbort } from './abort-error'
+import { IN_VITEST } from './env'
 
 export enum Reason {
     /**
@@ -13,7 +14,7 @@ export enum Reason {
     DomCallback = 'dom_callback',
 
     /**
-     * 对于一个项目应该只有一个 main 函数需要用 ENTRANCE 来标记 flaoting promise，如:
+     * 一个项目应该只有一个 main 函数需要用 ENTRANCE 来标记 flaoting promise，如:
      * ```typescript
      * async function main() {
      *     ...
@@ -41,6 +42,9 @@ export function detach<T>(
     reason: Reason,
     description?: string
 ): void {
+    // eslint-disable-next-line no-console
+    console.debug('Detach promise', reason, description)
+
     const isPromise = promise instanceof Promise
     let silencePromise
     if (isPromise) {
@@ -53,11 +57,62 @@ export function detach<T>(
         })()
     }
 
-    if (silencePromise) {
+    if (IN_VITEST && silencePromise) {
         collectedPromise.add(silencePromise)
         promiseReason.set(silencePromise, reason)
         if (description) {
             promiseDescription.set(silencePromise, description)
         }
     }
+}
+
+export async function clearAllDetached() {
+    if (!IN_VITEST) {
+        collectedPromise.clear()
+        promiseReason.clear()
+        promiseDescription.clear()
+
+        return []
+    }
+
+    // eslint-disable-next-line no-console
+    console.debug('Clear all detached promises')
+
+    const settledResult = []
+
+    // eslint-disable-next-line no-console
+    console.group('Detached promises')
+    for (const promise of collectedPromise) {
+        const reason = promiseReason.get(promise)
+        const description = promiseDescription.get(promise)
+        // eslint-disable-next-line no-console
+        console.debug(
+            `Await promise: ${reason ?? 'unknown'} ${description ?? ''}`
+        )
+        try {
+            const result = await promise
+            settledResult.push({
+                promise,
+                reason,
+                description: promiseDescription.get(promise),
+                result,
+            })
+        } catch (error) {
+            throwIfNotAbort(error)
+            settledResult.push({
+                promise,
+                reason,
+                description: promiseDescription.get(promise),
+                error,
+            })
+        }
+    }
+    // eslint-disable-next-line no-console
+    console.groupEnd()
+
+    collectedPromise.clear()
+    promiseReason.clear()
+    promiseDescription.clear()
+
+    return settledResult
 }

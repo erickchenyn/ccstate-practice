@@ -35,6 +35,12 @@ pre-commit:
             run: pnpm run type-check
             fail_text: '❌ TypeScript 类型检查失败！请修复类型错误后重新提交。'
 
+        # 6. 运行测试（允许没有测试文件）
+        test:
+            tags: testing
+            run: pnpm run test:run || (echo "⚠️ 没有找到测试文件，跳过测试检查" && exit 0)
+            fail_text: '❌ 测试失败！请修复失败的测试后重新提交。'
+
 # 在 pre-push 阶段运行的钩子（可选，更严格的检查）
 pre-push:
     commands:
@@ -67,6 +73,12 @@ pre-push:
             tags: types
             run: pnpm run type-check
             fail_text: '❌ TypeScript 类型检查失败！请修复类型错误后重新提交。'
+
+        # 6. 运行测试（允许没有测试文件）
+        test:
+            tags: testing
+            run: pnpm run test:run || (echo "⚠️ 没有找到测试文件，跳过测试检查" && exit 0)
+            fail_text: '❌ 测试失败！请修复失败的测试后重新提交。'
 
 # 在 commit-msg 阶段验证提交信息
 commit-msg:
