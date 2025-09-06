@@ -3,6 +3,17 @@
         "esbenp.prettier-vscode",
         "ms-vscode.vscode-typescript-next",
         "dbaeumer.vscode-eslint",
-        "editorconfig.editorconfig"
+        "editorconfig.editorconfig",
+        "anthropic.claude-code",
+        "github.copilot-chat",
+        "github.copilot",
+        "github.vscode-github-actions",
+        "github.codespaces",
+        "github.remotehub",
+        "github.github-vscode-theme",
+        "github.vscode-pull-request-github",
+        "bierner.markdown-preview-github-styles",
+        "wayou.vscode-todo-highlight",
+        "vitest.explorer"
     ]
 }
