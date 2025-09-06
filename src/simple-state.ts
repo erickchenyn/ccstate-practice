@@ -2,7 +2,7 @@ import { command, computed, state } from 'ccstate'
 
 const INIT = Symbol('INIT')
 
-export function createInputState<T>(initValue?: T) {
+export function createSimpleState<T>(initValue?: T) {
     const valueOrInit$ = state<T | typeof INIT>(INIT)
     return {
         value$: computed(get => {
