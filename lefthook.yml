@@ -1,0 +1,24 @@
+output:
+  - meta
+  - summary
+  - empty_summary
+  - success
+  - failure
+  - skips
+
+pre-commit:
+  parallel: true
+  jobs:
+    - name: tsc
+      glob: '*.{ts,tsx}'
+      run: pnpm tsc --noEmit --project tsconfig.app.json --skipLibCheck
+
+    - name: eslint
+      glob: '*.{ts,tsx}'
+      run: pnpm eslint --fix {staged_files}
+      stage_fixed: true
+
+    - name: prettier
+      glob: '*.{ts,tsx,json,md,css,html,yml}'
+      run: pnpm prettier --write {staged_files}
+      stage_fixed: true
