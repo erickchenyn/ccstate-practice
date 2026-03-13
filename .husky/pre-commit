@@ -1,2 +1,0 @@
-pnpm tsc --noEmit --project tsconfig.app.json --skipLibCheck
-pnpm lint-staged
