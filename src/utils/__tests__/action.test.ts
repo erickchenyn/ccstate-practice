@@ -2,7 +2,7 @@ import { createStore } from 'ccstate'
 import { describe, expect, it } from 'vitest'
 import { resetSignal, switchSignal } from '../action.ts'
 
-describe('[erick.chen@paraflow.com] action utilities', () => {
+describe('action utilities', () => {
   describe('resetSignal', () => {
     it('GIVEN a resetSignal WHEN called first time THEN returns a non-aborted signal', () => {
       const store = createStore()

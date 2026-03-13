@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { createDeferredPromise, parallel } from '../promise.ts'
 
-describe('[erick.chen@paraflow.com] promise utilities', () => {
+describe('promise utilities', () => {
   describe('createDeferredPromise', () => {
     it('GIVEN a deferred promise WHEN resolved THEN promise resolves with value', async () => {
       const ctrl = new AbortController()

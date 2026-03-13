@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { clearAllDetached, detach, Reason } from '../detach.ts'
 
-describe('[erick.chen@paraflow.com] detach utility', () => {
+describe('detach utility', () => {
   it('GIVEN a resolved promise WHEN detached THEN does not throw', () => {
     expect(() => detach(Promise.resolve('ok'), Reason.DomCallback)).not.toThrow()
   })

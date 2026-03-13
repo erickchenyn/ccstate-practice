@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { isAbortError, throwIfAbort, throwIfNotAbort } from '../abort.ts'
 
-describe('[erick.chen@paraflow.com] abort utilities', () => {
+describe('abort utilities', () => {
   describe('isAbortError', () => {
     it('GIVEN a DOMException with name AbortError WHEN called THEN returns true', () => {
       const error = new DOMException('aborted', 'AbortError')
