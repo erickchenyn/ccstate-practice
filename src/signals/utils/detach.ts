@@ -1,23 +1,6 @@
+import { Reason } from '../../types/utils/detach-reason.ts'
+export { Reason } from '../../types/utils/detach-reason.ts'
 import { isAbortError, throwIfNotAbort } from './abort.ts'
-
-export const Reason = {
-  /** 永不 resolve 的后台任务（如长连接） */
-  Daemon: 'daemon',
-
-  /** DOM 事件回调（onClick、onScroll、onRef 等） */
-  DomCallback: 'dom_callback',
-
-  /** 框架自动处理的异步调用 */
-  JsCall: 'js_call',
-
-  /** 应用入口 main 函数 */
-  Entrance: 'entrance',
-
-  /** 延迟执行的任务 */
-  Deferred: 'deferred',
-} as const
-
-export type Reason = (typeof Reason)[keyof typeof Reason]
 
 const IN_VITEST = import.meta.env?.VITEST === 'true'
 
