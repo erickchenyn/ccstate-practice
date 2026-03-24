@@ -1,5 +1,6 @@
 import { command, type Command } from 'ccstate'
-import { detach, Reason } from './detach.ts'
+import { detach } from './detach.ts'
+import { Reason } from '../../types/utils/detach-reason.ts'
 
 /**
  * 将 React ref 回调桥接到 ccstate command，并自动管理 AbortSignal 生命周期
@@ -17,7 +18,7 @@ export function onRef<T extends HTMLElement | SVGSVGElement>(
 
     const ctrl = new AbortController()
 
-    detach(set(command$, el, ctrl.signal), Reason.DomCallback, 'onRef')
+    detach(set(command$, el, ctrl.signal), Reason.DOM, 'onRef')
 
     return () => {
       ctrl.abort()
