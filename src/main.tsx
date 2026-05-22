@@ -10,6 +10,7 @@ import { RouteView } from './views/route-view.tsx'
 import App from './App.tsx'
 import { homeCommand$ } from './views/pages/home.tsx'
 import { aboutCommand$ } from './views/pages/about.tsx'
+import { columnsCommand$ } from './views/pages/columns.tsx'
 import { Reason } from './types/utils/detach-reason.ts'
 
 interface CommandRouteObject extends Omit<RouteObject, 'children'> {
@@ -57,6 +58,7 @@ const router = store.set(
       children: [
         { index: true, command$: homeCommand$ },
         { path: 'about', command$: aboutCommand$ },
+        { path: 'columns', command$: columnsCommand$ },
       ],
     },
   ],
