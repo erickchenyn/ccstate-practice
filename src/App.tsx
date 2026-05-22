@@ -7,6 +7,8 @@ export default function App() {
         <Link to="/">Home</Link>
         {' | '}
         <Link to="/about">About</Link>
+        {' | '}
+        <Link to="/columns">Columns</Link>
       </nav>
       <hr />
       <Outlet />
