@@ -1,5 +1,5 @@
 import '@testing-library/jest-dom/vitest'
-import { clearAllDetached } from './signals/utils/detach'
+import { clearAllDetached } from './tools/utils/detach'
 
 afterEach(() => {
   vi.restoreAllMocks()
