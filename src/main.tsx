@@ -3,15 +3,14 @@ import { createRoot } from 'react-dom/client'
 import { type RouteObject, createBrowserRouter, RouterProvider } from 'react-router'
 import { command, createStore } from 'ccstate'
 import { StoreProvider } from 'ccstate-react'
-import { detach } from './tools/utils/detach.ts'
-import type { RouteCommand } from './types/route-command.ts'
-import { createRouteScope$ } from './tools/route-scope.ts'
+import { detach, Reason } from './utils/detach.ts'
+import type { RouteCommand } from './utils/route-command.ts'
+import { createRouteScope$ } from './utils/route-scope.ts'
 import { Root } from './pages/route.tsx'
 import App from './App.tsx'
 import { homeCommand$ } from './pages/home.tsx'
 import { aboutCommand$ } from './pages/about.tsx'
 import { columnsCommand$ } from './pages/columns.tsx'
-import { Reason } from './types/utils/detach-reason.ts'
 
 interface CommandRouteObject extends Omit<RouteObject, 'children'> {
   command$?: RouteCommand

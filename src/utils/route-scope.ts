@@ -1,7 +1,15 @@
 import { type ReactNode } from 'react'
-import { command, computed, state, type Command } from 'ccstate'
-import { switchSignal } from './utils/action.ts'
-import { throwIfAbort } from './utils/abort.ts'
+import { command, computed, state, type Command, type Computed } from 'ccstate'
+import { switchSignal } from './action.ts'
+import { throwIfAbort } from './abort.ts'
+import type { RouteCommand } from './route-command.ts'
+
+export interface RouteScope {
+  readonly navigateToRoute$: Command<Promise<void>, [RouteCommand, AbortSignal]>
+  readonly renderedNode$: Computed<ReactNode>
+  readonly routeLoading$: Computed<boolean>
+  readonly routeError$: Computed<string | null>
+}
 
 export const createRouteScope$ = command(() => {
   const switchRouteSignal = switchSignal()

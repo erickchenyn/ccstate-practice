@@ -1,6 +1,5 @@
 import { command, type Command } from 'ccstate'
-import { detach } from './detach.ts'
-import { Reason } from '../../types/utils/detach-reason.ts'
+import { detach, Reason } from './detach.ts'
 
 /**
  * 将 React ref 回调桥接到 ccstate command，并自动管理 AbortSignal 生命周期
