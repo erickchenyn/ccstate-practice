@@ -1,5 +1,5 @@
 import { command } from 'ccstate'
-import type { RouteCommand } from '../types/route-command.ts'
+import type { RouteCommand } from '../utils/route-command.ts'
 import { delay } from 'signal-timers'
 
 export const aboutCommand$: RouteCommand = command(async (_, signal: AbortSignal) => {
