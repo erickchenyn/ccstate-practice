@@ -6,11 +6,11 @@ import { StoreProvider } from 'ccstate-react'
 import { detach } from './tools/utils/detach.ts'
 import type { RouteCommand } from './types/route-command.ts'
 import { createRouteScope$ } from './tools/route-scope.ts'
-import { RouteView } from './views/route-view.tsx'
+import { Root } from './pages/route.tsx'
 import App from './App.tsx'
-import { homeCommand$ } from './views/pages/home.tsx'
-import { aboutCommand$ } from './views/pages/about.tsx'
-import { columnsCommand$ } from './views/pages/columns.tsx'
+import { homeCommand$ } from './pages/home.tsx'
+import { aboutCommand$ } from './pages/about.tsx'
+import { columnsCommand$ } from './pages/columns.tsx'
 import { Reason } from './types/utils/detach-reason.ts'
 
 interface CommandRouteObject extends Omit<RouteObject, 'children'> {
@@ -28,7 +28,7 @@ const createRouter$ = command(({ set }, routes: CommandRouteObject[], rootSignal
 
       if (command$) {
         const routeCommand$ = command$
-        resolved.element = <RouteView routeScope={routeScope} />
+        resolved.element = <Root routeScope={routeScope} />
         resolved.loader = () => {
           detach(set(routeScope.navigateToRoute$, routeCommand$, rootSignal), Reason.Root)
           return null
