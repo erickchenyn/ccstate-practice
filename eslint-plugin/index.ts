@@ -5,7 +5,6 @@ import { noExportState } from './no-export-state.ts'
 import { noGetSignal } from './no-get-signal.ts'
 import { noStoreInParams } from './no-store-in-params.ts'
 import { signalCheckAwait } from './signal-check-await.ts'
-import { moduleImports } from './module-imports.ts'
 import { signalDollarSuffix } from './signal-dollar-suffix.ts'
 
 export const ccstatePlugin: ESLint.Plugin = {
@@ -24,8 +23,6 @@ export const ccstatePlugin: ESLint.Plugin = {
     'no-get-signal': noGetSignal,
     // @ts-expect-error RuleModule type mismatch with ESLint flat config
     'no-store-in-params': noStoreInParams,
-    // @ts-expect-error RuleModule type mismatch with ESLint flat config
-    'module-imports': moduleImports,
   },
   configs: {
     recommended: {
