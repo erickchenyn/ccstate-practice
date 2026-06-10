@@ -1,5 +1,5 @@
 import { useGet, useSet } from 'ccstate-react'
-import type { ColumnInstance, ColumnsPageContext } from './columns-page-context'
+import type { ColumnInstance, ColumnsPageContext } from '../signals/columns-page'
 
 function ColumnPanel({ ctx, column }: { ctx: ColumnsPageContext; column: ColumnInstance }) {
   const text = useGet(column.text$)

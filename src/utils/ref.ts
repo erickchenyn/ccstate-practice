@@ -2,10 +2,10 @@ import { command, type Command } from 'ccstate'
 import { detach, Reason } from './detach.ts'
 
 /**
- * 将 React ref 回调桥接到 ccstate command，并自动管理 AbortSignal 生命周期
+ * Bridges a React ref callback to a ccstate command with automatic AbortSignal lifecycle.
  *
- * 当 React 挂载元素时，创建 AbortController 并调用 command；
- * 当 React 卸载元素时，自动 abort。
+ * On mount: creates an AbortController and invokes the command.
+ * On unmount: aborts the controller automatically.
  */
 export function onRef<T extends HTMLElement | SVGSVGElement>(
   command$: Command<void | Promise<void>, [T, AbortSignal]>,

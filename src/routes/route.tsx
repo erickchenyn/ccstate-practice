@@ -1,5 +1,5 @@
 import { useGet } from 'ccstate-react'
-import type { RouteScope } from '../common/route-scope.ts'
+import type { RouteScope } from './route-scope.ts'
 
 export function Root({ routeScope }: { routeScope: RouteScope }) {
   const node = useGet(routeScope.renderedNode$)

@@ -42,7 +42,7 @@ describe('action utilities', () => {
       const store = createStore()
       const { switch$, signal$ } = switchSignal()
 
-      // signal$ 初始为已 abort 的 signal
+      // signal$ is initially an already-aborted signal
       expect(store.get(signal$).aborted).toBe(true)
 
       const newSignal = store.set(switch$)
