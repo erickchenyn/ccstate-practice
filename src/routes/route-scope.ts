@@ -11,42 +11,40 @@ export interface RouteScope {
   readonly routeError$: Computed<string | null>
 }
 
-export function createRouteContext() {
-  return command(() => {
-    const switchRouteSignal = switchSignal()
+export function createRouteContext(): RouteScope {
+  const switchRouteSignal = switchSignal()
 
-    const internalRenderedNode$ = state<ReactNode>(null)
-    const internalLoading$ = state(false)
-    const internalError$ = state<string | null>(null)
+  const internalRenderedNode$ = state<ReactNode>(null)
+  const internalLoading$ = state(false)
+  const internalError$ = state<string | null>(null)
 
-    return {
-      navigateToRoute$: command(
-        async (
-          { set },
-          routeCommand$: Command<ReactNode, [AbortSignal]>,
-          routeSignal: AbortSignal,
-        ) => {
-          const signal = set(switchRouteSignal.switch$, routeSignal)
+  return {
+    navigateToRoute$: command(
+      async (
+        { set },
+        routeCommand$: Command<ReactNode, [AbortSignal]>,
+        routeSignal: AbortSignal,
+      ) => {
+        const signal = set(switchRouteSignal.switch$, routeSignal)
 
-          set(internalLoading$, true)
-          set(internalError$, null)
-          set(internalRenderedNode$, null)
+        set(internalLoading$, true)
+        set(internalError$, null)
+        set(internalRenderedNode$, null)
 
-          try {
-            const node = await set(routeCommand$, signal)
-            signal.throwIfAborted()
-            set(internalRenderedNode$, node)
-          } catch (error) {
-            throwIfAbort(error)
-            set(internalError$, String(error))
-          } finally {
-            set(internalLoading$, false)
-          }
-        },
-      ),
-      renderedNode$: computed((get) => get(internalRenderedNode$)),
-      routeLoading$: computed((get) => get(internalLoading$)),
-      routeError$: computed((get) => get(internalError$)),
-    } as const
-  })
+        try {
+          const node = await set(routeCommand$, signal)
+          signal.throwIfAborted()
+          set(internalRenderedNode$, node)
+        } catch (error) {
+          throwIfAbort(error)
+          set(internalError$, String(error))
+        } finally {
+          set(internalLoading$, false)
+        }
+      },
+    ),
+    renderedNode$: computed((get) => get(internalRenderedNode$)),
+    routeLoading$: computed((get) => get(internalLoading$)),
+    routeError$: computed((get) => get(internalError$)),
+  } as const
 }

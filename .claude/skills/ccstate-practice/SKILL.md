@@ -1,9 +1,9 @@
 ---
 name: ccstate-practice
-description: Patterns and best practices for using ccstate state management in this practice project
+description: Patterns and best practices for using CCState state management in this practice project
 ---
 
-# ccstate Patterns and Best Practices
+# CCState Patterns and Best Practices
 
 This document records common patterns and best practices when using ccstate in this project.
 
@@ -359,7 +359,7 @@ const addEditor$ = command(({ set }, id: symbol, editor: Editor, signal: AbortSi
 Three core utilities for abort error handling:
 
 ```typescript
-import { isAbortError, throwIfAbort, throwIfNotAbort } from './common/abort.ts'
+import { isAbortError, throwIfAbort, throwIfNotAbort } from './utils/abort.ts'
 
 // isAbortError(error) — checks DOMException with name "AbortError"
 // throwIfAbort(error) — re-throw if abort (let caller handle cancellation)
@@ -373,7 +373,7 @@ import { isAbortError, throwIfAbort, throwIfNotAbort } from './common/abort.ts'
 Creates a resettable AbortSignal manager. Each call aborts the previous signal and creates a new one.
 
 ```typescript
-import { resetSignal } from './common/action.ts'
+import { resetSignal } from './utils/action.ts'
 
 function createSearchContext() {
   const fetchSignal$ = resetSignal()
@@ -394,7 +394,7 @@ function createSearchContext() {
 Like `resetSignal()` but also exposes a readable `signal$` computed:
 
 ```typescript
-import { switchSignal } from './common/action.ts'
+import { switchSignal } from './utils/action.ts'
 
 const { switch$, signal$ } = switchSignal()
 // set(switch$, parentSignal) — abort previous, create new
@@ -406,7 +406,7 @@ const { switch$, signal$ } = switchSignal()
 Bridges React ref callbacks to ccstate commands with automatic AbortSignal lifecycle:
 
 ```typescript
-import { onRef } from './common/ref.ts'
+import { onRef } from './utils/ref.ts'
 
 const setEl$ = onRef(
   command(({ set }, el: HTMLElement, signal: AbortSignal) => {
@@ -425,7 +425,7 @@ return <div ref={setEl} />
 Explicitly marks fire-and-forget promises. Tracks them for test cleanup via `clearAllDetached()`.
 
 ```typescript
-import { detach, Reason } from './common/detach.ts'
+import { detach, Reason } from './utils/detach.ts'
 
 // Reason enum:
 // Reason.DOM      — DOM event callbacks
@@ -447,7 +447,7 @@ detach(main(), Reason.Root)
 Key-scoped state that auto-resets when context changes:
 
 ```typescript
-import { keyedState } from './common/keyed-state.ts'
+import { keyedState } from './utils/keyed-state.ts'
 
 const { value$, set$ } = keyedState(contextId$, initialValue)
 // value$ returns initial when key mismatches
@@ -459,7 +459,7 @@ const { value$, set$ } = keyedState(contextId$, initialValue)
 Key-scoped session with open/update/close semantics:
 
 ```typescript
-import { keyedSession } from './common/keyed-state.ts'
+import { keyedSession } from './utils/keyed-state.ts'
 
 const { session$, open$, update$, close$ } = keyedSession<MySession>(contextId$)
 ```
@@ -469,7 +469,7 @@ const { session$, open$, update$, close$ } = keyedSession<MySession>(contextId$)
 Creates an externally resolvable Promise bound to AbortSignal lifecycle:
 
 ```typescript
-import { createDeferredPromise } from './common/promise.ts'
+import { createDeferredPromise } from './utils/promise.ts'
 
 const { promise, resolve, reject, settled } = createDeferredPromise<T>(signal)
 // Auto-rejects with signal.reason when signal aborts
@@ -480,7 +480,7 @@ const { promise, resolve, reject, settled } = createDeferredPromise<T>(signal)
 `Promise.all` wrapper with signal check:
 
 ```typescript
-import { parallel } from './common/promise.ts'
+import { parallel } from './utils/promise.ts'
 
 const [users, posts] = await parallel(signal, fetchUsers(signal), fetchPosts(signal))
 ```

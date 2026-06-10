@@ -20,7 +20,7 @@ interface CommandRouteObject extends Omit<RouteObject, 'children'> {
 function createRouterFactory() {
   const createRouter$ = command(
     ({ set }, routes: CommandRouteObject[], rootSignal: AbortSignal) => {
-      const routeScope = set(createRouteContext())
+      const routeScope = createRouteContext()
 
       function resolveRoutes(routes: CommandRouteObject[]): RouteObject[] {
         return routes.map((route) => {
