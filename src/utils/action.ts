@@ -1,10 +1,10 @@
 import { command, computed, state, type Command, type Computed } from 'ccstate'
 
 /**
- * 创建一个可重置的 AbortSignal 管理器
+ * Creates a resettable AbortSignal manager.
  *
- * 每次调用返回的 command 时，自动 abort 上一个 signal 并创建新的。
- * 常用于 Debounce、Tab 切换、页面导航等需要"取消上一次操作"的场景。
+ * Each invocation aborts the previous signal and creates a new one.
+ * Useful for debounce, tab switching, navigation, and other "cancel previous" patterns.
  */
 export function resetSignal(): Command<AbortSignal, AbortSignal[]> {
   const controller$ = state<AbortController | undefined>(undefined)
@@ -19,7 +19,7 @@ export function resetSignal(): Command<AbortSignal, AbortSignal[]> {
 }
 
 /**
- * 在 resetSignal 基础上，额外暴露一个可读的当前 signal computed
+ * Extends resetSignal by exposing a readable computed of the current signal.
  */
 export function switchSignal(): {
   switch$: Command<AbortSignal, AbortSignal[]>

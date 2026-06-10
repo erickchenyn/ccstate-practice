@@ -1,7 +1,7 @@
 import { command } from 'ccstate'
-import type { RouteCommand } from '../common/route-command.ts'
-import ColumnsPage from './columns-page.tsx'
-import { createColumnsPageContext } from './columns-page-context.ts'
+import type { RouteCommand } from '../route-command.ts'
+import ColumnsPage from '../../views/columns-page.tsx'
+import { createColumnsPageContext } from '../../signals/columns-page.ts'
 
 export function createColumnsPage() {
   const columnsCommand$: RouteCommand = command(() => {

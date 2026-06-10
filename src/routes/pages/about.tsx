@@ -1,5 +1,5 @@
 import { command } from 'ccstate'
-import type { RouteCommand } from '../common/route-command.ts'
+import type { RouteCommand } from '../route-command.ts'
 import { delay } from 'signal-timers'
 
 export function createAboutPage() {

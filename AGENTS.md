@@ -1,5 +1,9 @@
 # Project Guidelines
 
-## ccstate & AbortSignal 实践
+## Language
 
-与 ccstate 状态管理和 AbortSignal 生命周期管理相关的实践，参考 [ccstate-practice skill](.claude/skills/ccstate-practice/SKILL.md)。
+All file contents (code, comments, documentation) must be written in English.
+
+## CCState & AbortSignal Practices
+
+For CCState state management and AbortSignal lifecycle patterns, refer to [ccstate-practice skill](.claude/skills/ccstate-practice/SKILL.md).

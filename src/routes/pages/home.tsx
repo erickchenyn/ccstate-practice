@@ -1,5 +1,5 @@
 import { command } from 'ccstate'
-import type { RouteCommand } from '../common/route-command.ts'
+import type { RouteCommand } from '../route-command.ts'
 
 export function createHomePage() {
   const homeCommand$: RouteCommand = command(() => {

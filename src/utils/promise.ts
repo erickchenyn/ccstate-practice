@@ -1,7 +1,7 @@
 import { detach, Reason } from './detach.ts'
 
 /**
- * 创建可外部 resolve/reject 的 Promise，绑定到 AbortSignal 生命周期
+ * Creates an externally resolvable/rejectable Promise bound to an AbortSignal lifecycle.
  */
 export function createDeferredPromise<T>(signal: AbortSignal): {
   promise: Promise<T>
@@ -47,7 +47,7 @@ export function createDeferredPromise<T>(signal: AbortSignal): {
 }
 
 /**
- * 带 signal 检查的 Promise.all 包装
+ * Promise.all wrapper with AbortSignal pre-check.
  */
 export function parallel<T extends readonly unknown[]>(
   signal: AbortSignal,

@@ -1,23 +1,20 @@
 /**
- * 判断一个错误是否为 signal abort 导致的 AbortError
+ * Determines whether an error is an AbortError caused by signal abortion.
  *
- * 某些网络协议错误（如 ERR_QUIC_PROTOCOL_ERROR）在浏览器中会被标记为 name='AbortError'，
- * 因此需要严格判断类型来避免误判
+ * Some network protocol errors (e.g. ERR_QUIC_PROTOCOL_ERROR) are tagged as
+ * name='AbortError' in browsers, so strict type checking is needed to avoid false positives.
  */
 export function isAbortError(error: unknown): boolean {
-  // 标准的 AbortController abort
   if (error instanceof DOMException && error.name === 'AbortError') {
     return true
   }
 
-  // signal-timers 库的 AbortError
   if (error instanceof Error && error.name === 'AbortError') {
     if (error.message === '' || error.message.startsWith('AbortError:')) {
       return true
     }
   }
 
-  // AbortSignal 的原生 abort Event 对象
   if (error instanceof Event && error.type === 'abort' && error.target instanceof AbortSignal) {
     return true
   }
@@ -26,7 +23,7 @@ export function isAbortError(error: unknown): boolean {
 }
 
 /**
- * 如果是 abort 错误则重新抛出，让上层处理取消逻辑
+ * Re-throws if the error is an AbortError, letting callers handle cancellation.
  */
 export function throwIfAbort(error: unknown): void {
   if (isAbortError(error)) {
@@ -35,7 +32,7 @@ export function throwIfAbort(error: unknown): void {
 }
 
 /**
- * 如果不是 abort 错误则重新抛出，静默处理取消但不吞掉真实错误
+ * Re-throws if the error is NOT an AbortError — silences cancellation but surfaces real errors.
  */
 export function throwIfNotAbort(error: unknown): void {
   if (!isAbortError(error)) {

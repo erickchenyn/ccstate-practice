@@ -672,43 +672,65 @@ describe('[owner@example.com] component tests', () => {
 
 ```
 src/
-├── common/              # Shared utilities and signal helpers
+├── signals/             # State management layer (ccstate logic, .ts only)
+│   └── columns-page.ts # createColumnsPageContext factory
+├── views/               # Presentation layer (React components, .tsx only)
+│   └── columns-page.tsx # ColumnsPage view component
+├── routes/              # Route dispatch layer (bridges signals → views)
+│   ├── route-command.ts # RouteCommand type
+│   ├── route-scope.ts  # createRouteContext
+│   ├── route.tsx        # Root route component (uses ccstate-react)
+│   └── pages/           # Route page factories (.tsx, uses both ccstate and JSX)
+│       ├── home.tsx     # createHomePage
+│       ├── about.tsx    # createAboutPage
+│       └── columns.tsx  # createColumnsPage
+├── utils/               # Shared utilities (may use low-level primitives)
 │   ├── abort.ts         # isAbortError, throwIfAbort, throwIfNotAbort
 │   ├── action.ts        # resetSignal, switchSignal
 │   ├── detach.ts        # detach, clearAllDetached, Reason
 │   ├── ref.ts           # onRef
 │   ├── keyed-state.ts   # keyedState, keyedSession
 │   ├── promise.ts       # createDeferredPromise, parallel
-│   ├── command-return.ts # CommandReturn type helper
-│   ├── route-command.ts # RouteCommand type
-│   └── route-scope.ts  # createRouteContext
-├── components/          # React components + their signal factories
-│   ├── route.tsx        # Root route component
-│   ├── home.tsx         # createHomePage factory
-│   ├── about.tsx        # createAboutPage factory
-│   ├── columns.tsx      # createColumnsPage factory
-│   ├── columns-page-context.ts  # createColumnsPageContext factory
-│   └── columns-page.tsx # ColumnsPage view component
+│   └── command-return.ts # CommandReturn type helper
 ├── App.tsx
 └── main.tsx             # App entry, store creation, router setup
 ```
 
+### Layer rules (enforced by `ccstate/layer-boundaries`)
+
+| Directory  | File type   | Can import `ccstate` values | Can import `ccstate-react` |
+| ---------- | ----------- | :-------------------------: | :------------------------: |
+| `signals/` | `.ts` only  |             ✅              |             ❌             |
+| `views/`   | `.tsx` only |    ❌ (`import type` ok)    |             ✅             |
+| `routes/`  | both        |             ✅              |             ✅             |
+| `utils/`   | both        |             ✅              |       ❌ (typically)       |
+
 ### Key principles
 
-- Signal factories live alongside their consuming components
-- `common/` holds reusable ccstate utilities (not business logic)
-- Each factory file exports: the factory function + the context type
-- View components (`.tsx`) consume context via props using `useGet`/`useSet`
+- **`signals/`** — pure state logic (factories, commands, computed). No React, no JSX.
+- **`views/`** — pure presentation. Receives context as props, uses `useGet`/`useSet`. No signal creation.
+- **`routes/`** — the bridge layer that wires signal factories to view components. Route page files (`.tsx`) create signal contexts and inject them into views via JSX. This is the only layer that legitimately uses both `ccstate` and JSX together.
+- **`utils/`** — low-level primitives (`resetSignal`, `onRef`, `detach`, etc.). May use `new AbortController()` / `new Promise()` directly; other layers must not.
+- Each signal factory file exports: the factory function + the context type
+- View components consume context via props using `useGet`/`useSet`
 
 ## ESLint Rules Summary
 
-| Rule                     | Level | Description                               |
-| ------------------------ | ----- | ----------------------------------------- |
-| `signal-dollar-suffix`   | error | Signal variables must end with `$`        |
-| `no-export-state`        | error | Never export State directly               |
-| `no-module-level-signal` | error | No module-level signal declarations       |
-| `no-store-in-params`     | error | No Store type in function parameters      |
-| `no-get-signal`          | warn  | Don't get AbortSignal from state          |
-| `signal-check-await`     | error | Check signal after await (off in tests)   |
-| `no-catch-abort`         | error | Catch blocks must call throwIfAbort first |
-| `abort-signal-reason`    | error | abort() only accepts DOMException         |
+| Rule                      | Level | Description                                                     |
+| ------------------------- | ----- | --------------------------------------------------------------- |
+| `signal-dollar-suffix`    | error | Signal variables must end with `$`                              |
+| `no-export-state`         | error | Never export State directly                                     |
+| `no-module-level-signal`  | error | No module-level signal declarations                             |
+| `no-store-in-params`      | error | No Store type in function parameters                            |
+| `no-get-signal`           | warn  | Don't get AbortSignal from state                                |
+| `signal-check-await`      | error | Check signal after await (off in tests)                         |
+| `no-catch-abort`          | error | Catch blocks must call throwIfAbort first                       |
+| `abort-signal-reason`     | error | abort() only accepts DOMException                               |
+| `command-async-signal`    | error | Async commands must accept AbortSignal as last param            |
+| `no-empty-promise-catch`  | error | No `.catch(() => {})` — use detach()                            |
+| `no-void-statement`       | error | No `void <call>` — use detach() or await                        |
+| `no-getter-setter-params` | error | Functions must not accept Getter/Setter params                  |
+| `no-detach-in-signals`    | error | No detach() in signals/ — use await or signal chain             |
+| `no-new-abort-controller` | error | No direct `new AbortController()` (except utils/, main)         |
+| `no-new-promise`          | error | No direct `new Promise()` (except utils/)                       |
+| `layer-boundaries`        | error | Enforce file types and imports per layer (signals/views/routes) |

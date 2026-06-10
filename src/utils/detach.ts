@@ -1,16 +1,16 @@
 import { isAbortError, throwIfNotAbort } from './abort.ts'
 
 export const Reason = {
-  /** DOM 事件回调 */
+  /** DOM event callback */
   DOM: 'dom',
 
-  /** app 根节点 */
+  /** App root */
   Root: 'root',
 
-  /** 延迟执行的任务 */
+  /** Deferred task */
   Deferred: 'deferred',
 
-  /** 永不 resolve 的后台任务 */
+  /** Long-running background task that never resolves */
   Daemon: 'daemon',
 } as const
 
@@ -47,8 +47,8 @@ export function detach<T>(promise: T | Promise<T>, reason: Reason, description?:
 }
 
 /**
- * 在测试中等待所有 detach 的 promise 完成，
- * 如果有真实错误（非 abort）会重新抛出
+ * Awaits all detached promises in tests.
+ * Re-throws real errors (non-abort).
  */
 export async function clearAllDetached(): Promise<void> {
   if (!IN_VITEST) {

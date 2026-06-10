@@ -1,7 +1,7 @@
 import { type ReactNode } from 'react'
 import { command, computed, state, type Command, type Computed } from 'ccstate'
-import { switchSignal } from './action.ts'
-import { throwIfAbort } from './abort.ts'
+import { switchSignal } from '../utils/action.ts'
+import { throwIfAbort } from '../utils/abort.ts'
 import type { RouteCommand } from './route-command.ts'
 
 export interface RouteScope {
