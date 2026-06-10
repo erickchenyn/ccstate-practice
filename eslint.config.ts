@@ -41,6 +41,7 @@ export default defineConfig([
       'ccstate/no-catch-abort': 'error',
       'ccstate/no-get-signal': 'warn',
       'ccstate/no-store-in-params': 'error',
+      'ccstate/no-module-level-signal': 'error',
     },
   },
   {
