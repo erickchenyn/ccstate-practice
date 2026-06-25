@@ -22,10 +22,10 @@ Discover ccstate-related ESLint rules and skill documentation updates from the v
 gh api "repos/vm0-ai/vm0/git/trees/main?recursive=1" --jq '.tree[].path' | grep "turbo/apps/platform/custom-eslint/rules/"
 ```
 
-### 2. Fetch vm0's current ccstate agent guidance content
+### 2. Fetch vm0's current ccstate skill content
 
 ```bash
-gh api repos/vm0-ai/vm0/contents/AGENTS.md --jq '.content' | base64 -d
+gh api repos/vm0-ai/vm0/contents/.claude/skills/ccstate/SKILL.md --jq '.content' | base64 -d
 ```
 
 ### 3. Get this project's current rule list
