@@ -21,12 +21,15 @@ export default defineConfig([
       ecmaVersion: 2020,
       globals: globals.browser,
     },
-  },
-  {
-    files: ['src/**/*.{ts,tsx}'],
     plugins: {
       ccstate: ccstatePlugin,
     },
+    rules: {
+      'ccstate/test-files-in-tests-dir': 'error',
+    },
+  },
+  {
+    files: ['src/**/*.{ts,tsx}'],
     languageOptions: {
       parserOptions: {
         projectService: true,

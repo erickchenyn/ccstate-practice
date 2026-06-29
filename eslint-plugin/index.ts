@@ -20,6 +20,7 @@ import { requireAccept } from './require-accept.ts'
 import { requireClientSignal } from './require-client-signal.ts'
 import { signalCheckAwait } from './signal-check-await.ts'
 import { signalDollarSuffix } from './signal-dollar-suffix.ts'
+import { testFilesInTestsDir } from './test-files-in-tests-dir.ts'
 
 export const ccstatePlugin: ESLint.Plugin = {
   rules: {
@@ -65,6 +66,8 @@ export const ccstatePlugin: ESLint.Plugin = {
     'require-client-signal': requireClientSignal,
     // @ts-expect-error RuleModule type mismatch with ESLint flat config
     'layer-boundaries': layerBoundaries,
+    // @ts-expect-error RuleModule type mismatch with ESLint flat config
+    'test-files-in-tests-dir': testFilesInTestsDir,
   },
   configs: {
     recommended: {
@@ -81,6 +84,7 @@ export const ccstatePlugin: ESLint.Plugin = {
         'ccstate/no-side-effect-in-render': 'error',
         'ccstate/require-accept': 'error',
         'ccstate/require-client-signal': 'error',
+        'ccstate/test-files-in-tests-dir': 'error',
       },
     },
   },

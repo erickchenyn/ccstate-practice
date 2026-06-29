@@ -1,6 +1,6 @@
 import { Linter, type ESLint } from 'eslint'
 import { describe, expect, it } from 'vitest'
-import { noAccessorEscape } from './no-accessor-escape.ts'
+import { noAccessorEscape } from '../no-accessor-escape.ts'
 
 const plugin = {
   rules: {

@@ -1,8 +1,8 @@
 import { Linter, type ESLint } from 'eslint'
 import tseslint from 'typescript-eslint'
 import { describe, expect, it } from 'vitest'
-import { requireAccept } from './require-accept.ts'
-import { requireClientSignal } from './require-client-signal.ts'
+import { requireAccept } from '../require-accept.ts'
+import { requireClientSignal } from '../require-client-signal.ts'
 
 const plugin = {
   rules: {
