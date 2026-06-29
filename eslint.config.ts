@@ -52,6 +52,8 @@ export default defineConfig([
       'ccstate/no-new-abort-controller': 'error',
       'ccstate/no-new-promise': 'error',
       'ccstate/no-side-effect-in-render': 'error',
+      'ccstate/require-accept': 'error',
+      'ccstate/require-client-signal': 'error',
       'ccstate/layer-boundaries': 'error',
     },
   },

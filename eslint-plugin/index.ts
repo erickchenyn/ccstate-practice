@@ -16,6 +16,8 @@ import { noNewPromise } from './no-new-promise.ts'
 import { noSideEffectInRender } from './no-side-effect-in-render.ts'
 import { noStoreInParams } from './no-store-in-params.ts'
 import { noVoidStatement } from './no-void-statement.ts'
+import { requireAccept } from './require-accept.ts'
+import { requireClientSignal } from './require-client-signal.ts'
 import { signalCheckAwait } from './signal-check-await.ts'
 import { signalDollarSuffix } from './signal-dollar-suffix.ts'
 
@@ -58,6 +60,10 @@ export const ccstatePlugin: ESLint.Plugin = {
     // @ts-expect-error RuleModule type mismatch with ESLint flat config
     'no-side-effect-in-render': noSideEffectInRender,
     // @ts-expect-error RuleModule type mismatch with ESLint flat config
+    'require-accept': requireAccept,
+    // @ts-expect-error RuleModule type mismatch with ESLint flat config
+    'require-client-signal': requireClientSignal,
+    // @ts-expect-error RuleModule type mismatch with ESLint flat config
     'layer-boundaries': layerBoundaries,
   },
   configs: {
@@ -73,6 +79,8 @@ export const ccstatePlugin: ESLint.Plugin = {
         'ccstate/no-get-signal': 'warn',
         'ccstate/no-store-in-params': 'error',
         'ccstate/no-side-effect-in-render': 'error',
+        'ccstate/require-accept': 'error',
+        'ccstate/require-client-signal': 'error',
       },
     },
   },

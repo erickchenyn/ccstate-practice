@@ -235,6 +235,94 @@ Views should consume async computed values with `useLoadable`,
 `useLastResolved`, or another loadable helper rather than duplicating lifecycle
 state in the signals layer.
 
+### HTTP Client and `accept()` Pattern
+
+Use `createHttpClientContext()` to create a scoped `httpClient$` factory. The
+factory returns a typed client for a contract object, and every client method
+call in `src/signals/` must be wrapped in `accept()`.
+
+```typescript
+import { command, computed, state } from 'ccstate'
+import { accept, type HttpResponse } from '../utils/http.ts'
+import type { HttpClientContext } from './http-client.ts'
+
+interface User {
+  readonly id: string
+  readonly name: string
+}
+
+const usersContract = {
+  list: {
+    method: 'GET',
+    path: '/api/users',
+  },
+  create: {
+    method: 'POST',
+    path: '/api/users',
+  },
+} satisfies {
+  readonly list: {
+    readonly method: 'GET'
+    readonly path: string
+  }
+  readonly create: {
+    readonly method: 'POST'
+    readonly path: string
+  }
+}
+
+type UsersListResponse = HttpResponse<readonly User[], 200>
+type UserCreateResponse = HttpResponse<User, 201>
+```
+
+For reads, prefer async `computed` plus a reload trigger. The computed lifecycle
+owns the request, so `fetchOptions.signal` is not required there:
+
+```typescript
+export function createUsersContext({ httpClient$ }: HttpClientContext) {
+  const internalReloadTrigger$ = state(0)
+
+  return {
+    users$: computed(async (get) => {
+      get(internalReloadTrigger$)
+      const client = get(httpClient$)(usersContract)
+      const result = await accept(client.list(), [200])
+      return result.body as UsersListResponse['body']
+    }),
+    reloadUsers$: command(({ set }) => {
+      set(internalReloadTrigger$, (prev) => prev + 1)
+    }),
+  } as const
+}
+```
+
+For write commands, pass the command's current `AbortSignal` through
+`fetchOptions.signal`, then check the signal after non-signal-aware follow-up
+work.
+
+```typescript
+export function createUsersContext({ httpClient$ }: HttpClientContext) {
+  return {
+    createUser$: command(async ({ get }, name: string, signal: AbortSignal) => {
+      const client = get(httpClient$)(usersContract)
+      const result = await accept(
+        client.create({
+          body: { name },
+          fetchOptions: { signal },
+        }),
+        [201],
+      )
+      signal.throwIfAborted()
+      return result.body as UserCreateResponse['body']
+    }),
+  } as const
+}
+```
+
+`accept()` returns the response only when the status is in the explicit accepted
+status list. Otherwise it throws `HttpError`, using `body.error.message` and
+`body.error.code` when the server provides that shape.
+
 ### Conditional Computed Pattern
 
 Early return in computed when preconditions are not met:
@@ -802,6 +890,7 @@ describe('[owner@example.com] component tests', () => {
 src/
 ├── signals/             # State management layer (ccstate logic, .ts only)
 │   └── columns-page.ts # createColumnsPageContext factory
+│   └── http-client.ts  # createHttpClientContext factory
 ├── views/               # Presentation layer (React components, .tsx only)
 │   └── columns-page.tsx # ColumnsPage view component
 ├── routes/              # Route dispatch layer (bridges signals → views)
@@ -818,6 +907,7 @@ src/
 │   ├── detach.ts        # detach, clearAllDetached, Reason
 │   ├── ref.ts           # onRef
 │   ├── keyed-state.ts   # keyedState, keyedSession
+│   ├── http.ts          # typed HTTP client and accept()
 │   ├── promise.ts       # createDeferredPromise, parallel
 │   └── command-return.ts # CommandReturn type helper
 ├── App.tsx
@@ -844,24 +934,26 @@ src/
 
 ## ESLint Rules Summary
 
-| Rule                       | Level | Description                                                     |
-| -------------------------- | ----- | --------------------------------------------------------------- |
-| `signal-dollar-suffix`     | error | Signal variables must end with `$`                              |
-| `no-export-state`          | error | Never export State directly                                     |
-| `no-module-level-signal`   | error | No module-level signal declarations                             |
-| `no-store-in-params`       | error | No Store type in function parameters                            |
-| `no-get-signal`            | warn  | Don't get AbortSignal from state                                |
-| `signal-check-await`       | error | Check signal after await (off in tests)                         |
-| `no-catch-abort`           | error | Catch blocks must call throwIfAbort first                       |
-| `no-abort-swallower`       | error | No rejection handlers that silently swallow promise failures    |
-| `abort-signal-reason`      | error | abort() only accepts DOMException                               |
-| `command-async-signal`     | error | Async commands must accept AbortSignal as last param            |
-| `no-empty-promise-catch`   | error | No `.catch(() => {})` — use detach()                            |
-| `no-void-statement`        | error | No `void <call>` — use detach() or await                        |
-| `no-getter-setter-params`  | error | Functions must not accept Getter/Setter params                  |
-| `no-accessor-escape`       | error | Accessors must not escape command/computed callback scope       |
-| `no-detach-in-signals`     | error | No detach() in signals/ — use await or signal chain             |
-| `no-new-abort-controller`  | error | No direct `new AbortController()` (except utils/, main)         |
-| `no-new-promise`           | error | No direct `new Promise()` (except utils/)                       |
-| `no-side-effect-in-render` | error | No direct side-effect calls in React render bodies              |
-| `layer-boundaries`         | error | Enforce file types and imports per layer (signals/views/routes) |
+| Rule                       | Level | Description                                                       |
+| -------------------------- | ----- | ----------------------------------------------------------------- |
+| `signal-dollar-suffix`     | error | Signal variables must end with `$`                                |
+| `no-export-state`          | error | Never export State directly                                       |
+| `no-module-level-signal`   | error | No module-level signal declarations                               |
+| `no-store-in-params`       | error | No Store type in function parameters                              |
+| `no-get-signal`            | warn  | Don't get AbortSignal from state                                  |
+| `signal-check-await`       | error | Check signal after await (off in tests)                           |
+| `no-catch-abort`           | error | Catch blocks must call throwIfAbort first                         |
+| `no-abort-swallower`       | error | No rejection handlers that silently swallow promise failures      |
+| `abort-signal-reason`      | error | abort() only accepts DOMException                                 |
+| `command-async-signal`     | error | Async commands must accept AbortSignal as last param              |
+| `no-empty-promise-catch`   | error | No `.catch(() => {})` — use detach()                              |
+| `no-void-statement`        | error | No `void <call>` — use detach() or await                          |
+| `no-getter-setter-params`  | error | Functions must not accept Getter/Setter params                    |
+| `no-accessor-escape`       | error | Accessors must not escape command/computed callback scope         |
+| `no-detach-in-signals`     | error | No detach() in signals/ — use await or signal chain               |
+| `no-new-abort-controller`  | error | No direct `new AbortController()` (except utils/, main)           |
+| `no-new-promise`           | error | No direct `new Promise()` (except utils/)                         |
+| `no-side-effect-in-render` | error | No direct side-effect calls in React render bodies                |
+| `require-accept`           | error | HTTP client calls in signals must be wrapped in accept()          |
+| `require-client-signal`    | error | HTTP client calls in async commands must pass fetchOptions.signal |
+| `layer-boundaries`         | error | Enforce file types and imports per layer (signals/views/routes)   |
