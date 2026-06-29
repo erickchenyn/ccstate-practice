@@ -2,6 +2,7 @@ import type { ESLint } from 'eslint'
 import { abortSignalReason } from './abort-signal-reason.ts'
 import { layerBoundaries } from './layer-boundaries.ts'
 import { commandAsyncSignal } from './command-async-signal.ts'
+import { noAbortSwallower } from './no-abort-swallower.ts'
 import { noCatchAbort } from './no-catch-abort.ts'
 import { noDetachInSignals } from './no-detach-in-signals.ts'
 import { noEmptyPromiseCatch } from './no-empty-promise-catch.ts'
@@ -12,6 +13,7 @@ import { noGetterSetterParams } from './no-getter-setter-params.ts'
 import { noModuleLevelSignal } from './no-module-level-signal.ts'
 import { noNewAbortController } from './no-new-abort-controller.ts'
 import { noNewPromise } from './no-new-promise.ts'
+import { noSideEffectInRender } from './no-side-effect-in-render.ts'
 import { noStoreInParams } from './no-store-in-params.ts'
 import { noVoidStatement } from './no-void-statement.ts'
 import { signalCheckAwait } from './signal-check-await.ts'
@@ -29,6 +31,8 @@ export const ccstatePlugin: ESLint.Plugin = {
     'no-export-state': noExportState,
     // @ts-expect-error RuleModule type mismatch with ESLint flat config
     'signal-check-await': signalCheckAwait,
+    // @ts-expect-error RuleModule type mismatch with ESLint flat config
+    'no-abort-swallower': noAbortSwallower,
     // @ts-expect-error RuleModule type mismatch with ESLint flat config
     'no-catch-abort': noCatchAbort,
     // @ts-expect-error RuleModule type mismatch with ESLint flat config
@@ -52,6 +56,8 @@ export const ccstatePlugin: ESLint.Plugin = {
     // @ts-expect-error RuleModule type mismatch with ESLint flat config
     'no-new-promise': noNewPromise,
     // @ts-expect-error RuleModule type mismatch with ESLint flat config
+    'no-side-effect-in-render': noSideEffectInRender,
+    // @ts-expect-error RuleModule type mismatch with ESLint flat config
     'layer-boundaries': layerBoundaries,
   },
   configs: {
@@ -62,9 +68,11 @@ export const ccstatePlugin: ESLint.Plugin = {
         'ccstate/no-export-state': 'error',
         'ccstate/signal-check-await': 'error',
         'ccstate/no-catch-abort': 'error',
+        'ccstate/no-abort-swallower': 'error',
         'ccstate/no-accessor-escape': 'error',
         'ccstate/no-get-signal': 'warn',
         'ccstate/no-store-in-params': 'error',
+        'ccstate/no-side-effect-in-render': 'error',
       },
     },
   },

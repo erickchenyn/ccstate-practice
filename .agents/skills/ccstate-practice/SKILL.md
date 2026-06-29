@@ -187,6 +187,54 @@ const reload$ = command(({ set }) => {
 })
 ```
 
+### Computed Memoization
+
+`computed` automatically memoizes its last result. If its tracked dependencies
+do not change, reading the computed returns the cached value without re-running
+the callback. Do not add a manual `Map` cache for the same dependency key unless
+the code needs multi-key caching beyond ccstate's last-value memoization.
+
+```typescript
+// ❌ Redundant: computed already memoizes for unchanged dependencies
+const cache = new Map<string, Result>()
+const result$ = computed((get) => {
+  const key = get(key$)
+  if (cache.has(key)) return cache.get(key)!
+  const result = expensiveCreate(key)
+  cache.set(key, result)
+  return result
+})
+
+// ✅ Preferred
+const result$ = computed((get) => {
+  const key = get(key$)
+  return expensiveCreate(key)
+})
+```
+
+### Reactive Async Computed Pattern
+
+Prefer reactive async `computed` values for data that is derived from current
+state and external I/O. Use a reload trigger to invalidate the computed instead
+of storing manual `loading` / `error` / `data` state in commands.
+
+```typescript
+const internalReloadTrigger$ = state(0)
+
+const users$ = computed(async (get) => {
+  get(internalReloadTrigger$)
+  return await fetchUsers()
+})
+
+const reloadUsers$ = command(({ set }) => {
+  set(internalReloadTrigger$, (prev) => prev + 1)
+})
+```
+
+Views should consume async computed values with `useLoadable`,
+`useLastResolved`, or another loadable helper rather than duplicating lifecycle
+state in the signals layer.
+
 ### Conditional Computed Pattern
 
 Early return in computed when preconditions are not met:
@@ -294,6 +342,38 @@ const fetchData$ = command(async ({ set }, query: string, signal: AbortSignal) =
   } finally {
     set(loading$, false)
   }
+})
+```
+
+### Signal ownership
+
+Every `AbortSignal` must have an owner that will abort it. Long-running work
+such as polling loops, streams, and delayed retries must receive a parent signal
+from the route/page/operation lifecycle. A `resetSignal()` without a parent only
+provides mutual exclusion; it does not stop the current task unless the reset
+command is called again.
+
+```typescript
+// ❌ Leaks if there is no later reset call
+const pollingSignal = set(resetPolling$)
+set(startPolling$, pollingSignal)
+
+// ✅ Stops when the page or route aborts
+const pollingSignal = set(resetPolling$, pageSignal)
+set(startPolling$, pollingSignal)
+```
+
+When an operation has an explicit cancel action, the cancel command may call the
+reset command without a parent because its purpose is to abort the current task:
+
+```typescript
+const cancelUpload$ = command(({ set }) => {
+  set(resetUpload$)
+})
+
+const upload$ = command(async ({ set }, file: File, pageSignal: AbortSignal) => {
+  const signal = set(resetUpload$, pageSignal)
+  await uploadFile(file, signal)
 })
 ```
 
@@ -437,6 +517,17 @@ const setEl = useSet(setEl$)
 return <div ref={setEl} />
 ```
 
+Do not wrap the ref setter in an arrow function. React uses the function's
+return value as the cleanup callback; wrapping it discards the cleanup.
+
+```typescript
+// ❌ Discards onRef cleanup
+return <div ref={(el) => setEl(el)} />
+
+// ✅ Preserves cleanup
+return <div ref={setEl} />
+```
+
 ### `detach()`
 
 Explicitly marks fire-and-forget promises. Tracks them for test cleanup via `clearAllDetached()`.
@@ -576,17 +667,37 @@ function DataList() {
 
 ### Async commands in event handlers
 
-Use `detach` for fire-and-forget async calls in DOM callbacks:
+Use `detach` for fire-and-forget async calls in DOM callbacks. DOM event
+handlers cannot return promises, so `detach` is the explicit ownership handoff
+that lets test cleanup track the async work.
 
 ```typescript
 function SearchInput() {
   const handleSearch = useSet(search$)
+  const pageSignal = useGet(pageSignal$)
 
   return (
     <input onChange={(e) => {
-      detach(handleSearch(e.target.value, signal), Reason.DOM)
+      detach(handleSearch(e.target.value, pageSignal), Reason.DOM)
     }} />
   )
+}
+```
+
+Keep `detach` out of render bodies and signal files. In signals, await the
+sub-command or pass a parent signal through the command chain. In components,
+call `detach` inside the event callback, not while rendering.
+
+```typescript
+function SaveButton() {
+  const save = useSet(save$)
+  const pageSignal = useGet(pageSignal$)
+
+  // ❌ Side effect during render
+  detach(save(pageSignal), Reason.DOM)
+
+  // ✅ Side effect owned by DOM callback
+  return <button onClick={() => detach(save(pageSignal), Reason.DOM)}>Save</button>
 }
 ```
 
@@ -733,22 +844,24 @@ src/
 
 ## ESLint Rules Summary
 
-| Rule                      | Level | Description                                                     |
-| ------------------------- | ----- | --------------------------------------------------------------- |
-| `signal-dollar-suffix`    | error | Signal variables must end with `$`                              |
-| `no-export-state`         | error | Never export State directly                                     |
-| `no-module-level-signal`  | error | No module-level signal declarations                             |
-| `no-store-in-params`      | error | No Store type in function parameters                            |
-| `no-get-signal`           | warn  | Don't get AbortSignal from state                                |
-| `signal-check-await`      | error | Check signal after await (off in tests)                         |
-| `no-catch-abort`          | error | Catch blocks must call throwIfAbort first                       |
-| `abort-signal-reason`     | error | abort() only accepts DOMException                               |
-| `command-async-signal`    | error | Async commands must accept AbortSignal as last param            |
-| `no-empty-promise-catch`  | error | No `.catch(() => {})` — use detach()                            |
-| `no-void-statement`       | error | No `void <call>` — use detach() or await                        |
-| `no-getter-setter-params` | error | Functions must not accept Getter/Setter params                  |
-| `no-accessor-escape`      | error | Accessors must not escape command/computed callback scope       |
-| `no-detach-in-signals`    | error | No detach() in signals/ — use await or signal chain             |
-| `no-new-abort-controller` | error | No direct `new AbortController()` (except utils/, main)         |
-| `no-new-promise`          | error | No direct `new Promise()` (except utils/)                       |
-| `layer-boundaries`        | error | Enforce file types and imports per layer (signals/views/routes) |
+| Rule                       | Level | Description                                                     |
+| -------------------------- | ----- | --------------------------------------------------------------- |
+| `signal-dollar-suffix`     | error | Signal variables must end with `$`                              |
+| `no-export-state`          | error | Never export State directly                                     |
+| `no-module-level-signal`   | error | No module-level signal declarations                             |
+| `no-store-in-params`       | error | No Store type in function parameters                            |
+| `no-get-signal`            | warn  | Don't get AbortSignal from state                                |
+| `signal-check-await`       | error | Check signal after await (off in tests)                         |
+| `no-catch-abort`           | error | Catch blocks must call throwIfAbort first                       |
+| `no-abort-swallower`       | error | No rejection handlers that silently swallow promise failures    |
+| `abort-signal-reason`      | error | abort() only accepts DOMException                               |
+| `command-async-signal`     | error | Async commands must accept AbortSignal as last param            |
+| `no-empty-promise-catch`   | error | No `.catch(() => {})` — use detach()                            |
+| `no-void-statement`        | error | No `void <call>` — use detach() or await                        |
+| `no-getter-setter-params`  | error | Functions must not accept Getter/Setter params                  |
+| `no-accessor-escape`       | error | Accessors must not escape command/computed callback scope       |
+| `no-detach-in-signals`     | error | No detach() in signals/ — use await or signal chain             |
+| `no-new-abort-controller`  | error | No direct `new AbortController()` (except utils/, main)         |
+| `no-new-promise`           | error | No direct `new Promise()` (except utils/)                       |
+| `no-side-effect-in-render` | error | No direct side-effect calls in React render bodies              |
+| `layer-boundaries`         | error | Enforce file types and imports per layer (signals/views/routes) |
